@@ -223,13 +223,36 @@ useEffect(() => {
       />
     )}
 
-    <h3 className="text-xl font-semibold text-white">
-      {entry.idol} — {entry.mv}
+    <h3 className="
+text-3xl
+font-bold
+text-white
+leading-tight">
+      <div>
+
+<p className="
+text-zinc-400
+text-sm
+uppercase">
+
+{entry.idol}
+
+</p>
+
+<h3 className="
+text-3xl
+font-bold">
+
+{entry.mv}
+
+</h3>
+
+</div>
     </h3>
 
-    <p className="text-sm text-zinc-300 mb-3">
-      {entry.date}
-    </p>
+    <p className="text-xs text-zinc-500 mb-3">
+  {entry.date}
+</p>
 
     <div className="flex flex-wrap gap-2 mb-4">
       {entry.favorite && (
@@ -250,9 +273,17 @@ useEffect(() => {
         </span>
       )}
 
-      <span className="bg-zinc-700 px-3 py-1 rounded-full text-sm">
-        ⭐ {entry.rating}
-      </span>
+      <span className="
+bg-zinc-700
+px-2
+py-1
+rounded-full
+text-xs
+text-zinc-300">
+
+⭐ {entry.rating}
+
+</span>
     </div>
 
     <details className="mt-4">
@@ -522,7 +553,7 @@ e.target.value
           <div className="flex items-center gap-3">
             <Film className="w-8 h-8" />
             <div>
-              <h1 className="text-4xl font-bold">MV Archive</h1>
+              <h1 className="text-6xl font-extrabold tracking-tight">MV Archive</h1>
               <p className="text-gray-400">아이돌 MV 연구 아카이브</p>
             </div>
           </div>
@@ -751,7 +782,13 @@ rounded-xl"
                           return (
                             <details key={album} className="bg-zinc-900 rounded-2xl p-5">
                               <summary className="cursor-pointer text-xl font-semibold">
-                                💿 {album}
+                                <div className="
+text-2xl
+font-bold">
+
+💿 {album}
+
+</div>
                                 <span className="ml-3 text-sm text-zinc-400">
                                   ⭐ {getAverageRating(mvs)}
                                 </span>
