@@ -53,21 +53,48 @@ useEffect(() => {
 }, [entries, loaded]);
 
 useEffect(() => {
-  const unsubscribe = onSnapshot(
-    collection(db, "mv-entries"),
-    (snapshot) => {
-      const data = snapshot.docs.map((document) => ({
-        ...document.data(),
-        id: document.id,
-      }));
 
-      setEntries(data);
+  const unsubscribe =
+  onSnapshot(
+
+    collection(
+      db,
+      "mv-entries"
+    ),
+
+    (snapshot)=>{
+
+      console.log(
+        "불러온 문서",
+        snapshot.docs.length
+      );
+
+      const data =
+      snapshot.docs.map(
+        (document)=>({
+
+          ...document.data(),
+
+          id:
+          document.id,
+
+        })
+      );
+
+      console.log(data);
+
+      setEntries(
+        data
+      );
+
     }
+
   );
 
-  return () => unsubscribe();
-}, []);
+  return () =>
+  unsubscribe();
 
+}, []);
 
 
   const filteredEntries = entries.filter((entry) => {
