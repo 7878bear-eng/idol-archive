@@ -164,6 +164,8 @@ useEffect(() => {
     } else {
       setEntries([newEntry, ...entries]);
     }
+    console.log("Firebase 저장 시도", newEntry);
+    
     await setDoc(
 
 doc(
