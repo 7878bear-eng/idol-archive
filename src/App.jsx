@@ -1,7 +1,18 @@
+import { db } from "./firebase";
+
+import {
+  collection,
+  doc,
+  setDoc,
+  onSnapshot,
+} from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import { Search, Plus, Film } from "lucide-react";
 
 export default function App() {
+  const [openSettings,
+setOpenSettings] =
+useState(false);
   const [viewMode, setViewMode] = useState("year");
   const [openForm, setOpenForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -22,33 +33,40 @@ export default function App() {
   const [loaded, setLoaded] =
   useState(false);
 
-  useEffect(() => {
-  const saved =
-    localStorage.getItem(
-      "mv-entries"
-    );
+ useEffect(() => {
+  const saved = localStorage.getItem("mv-entries");
 
   if (saved) {
-    setEntries(
-      JSON.parse(saved)
-    );
+    setEntries(JSON.parse(saved));
   }
 
   setLoaded(true);
-
 }, []);
 
-
 useEffect(() => {
-
   if (!loaded) return;
 
   localStorage.setItem(
     "mv-entries",
     JSON.stringify(entries)
   );
-
 }, [entries, loaded]);
+
+useEffect(() => {
+  const unsubscribe = onSnapshot(
+    collection(db, "mv-entries"),
+    (snapshot) => {
+      const data = snapshot.docs.map((document) => ({
+        ...document.data(),
+        id: document.id,
+      }));
+
+      setEntries(data);
+    }
+  );
+
+  return () => unsubscribe();
+}, []);
 
 
 
@@ -685,6 +703,23 @@ e.target.value
 
         <div className="flex gap-3 mb-5">
           <button
+onClick={() =>
+setOpenSettings(
+!openSettings
+)
+}
+
+className="
+bg-zinc-800
+px-4
+py-2
+rounded-xl"
+>
+
+⚙️ Settings
+
+</button>
+          <button
             onClick={() => setViewMode("year")}
             className={`px-4 py-2 rounded-xl ${
               viewMode === "year" ? "bg-white text-black" : "bg-zinc-800"
@@ -692,6 +727,7 @@ e.target.value
           >
             년도별 보기
           </button>
+          
 
           <button
             onClick={() => setViewMode("idol")}
@@ -701,6 +737,7 @@ e.target.value
           >
             아이돌별 보기
           </button>
+          
           <button
 onClick={() => {
 
@@ -751,6 +788,123 @@ rounded-xl"
 </button>
         </div>
 
+        {openSettings && (
+
+<div className="
+bg-[#1a1a1a]
+rounded-2xl
+p-5
+mb-6
+space-y-4">
+
+<h2 className="
+text-2xl
+font-bold">
+
+⚙️ Settings
+
+</h2>
+
+
+<button
+
+onClick={()=>{
+
+const data =
+JSON.stringify(
+entries,
+null,
+2
+);
+
+const blob =
+new Blob(
+[data],
+{
+type:
+"application/json"
+}
+);
+
+const url =
+URL.createObjectURL(
+blob
+);
+
+const a =
+document.createElement(
+"a"
+);
+
+a.href=url;
+
+a.download=
+"mv-archive.json";
+
+a.click();
+
+}}
+
+className="
+bg-white
+text-black
+px-4
+py-3
+rounded-xl">
+
+데이터 내보내기
+
+</button>
+
+
+
+<input
+
+type="file"
+
+accept=".json"
+
+onChange={(e)=>{
+
+const file =
+e.target.files[0];
+
+if(!file)
+return;
+
+const reader =
+new FileReader();
+
+reader.onload =
+(event)=>{
+
+const imported =
+JSON.parse(
+event.target.result
+);
+
+setEntries(
+imported
+);
+
+};
+
+reader.readAsText(
+file
+);
+
+}}
+
+className="
+bg-zinc-800
+p-3
+rounded-xl
+block"
+/>
+
+</div>
+
+)}
         <section className="mb-8">
           <div className="bg-[#1a1a1a] rounded-2xl p-4 flex items-center gap-3">
             <Search className="w-5 h-5" />
