@@ -138,7 +138,7 @@ useEffect(() => {
     setImage("");
   };
 
-  const addEntry = () => {
+  const addEntry = async () => {
     if (!idolName || !mvTitle) return;
 
     const newEntry = {
@@ -164,6 +164,21 @@ useEffect(() => {
     } else {
       setEntries([newEntry, ...entries]);
     }
+    await setDoc(
+
+doc(
+db,
+
+"mv-entries",
+
+String(
+newEntry.id
+)
+),
+
+newEntry
+
+);
 
     resetForm();
     setOpenForm(false);
