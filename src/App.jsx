@@ -278,22 +278,14 @@ useEffect(() => {
     setOpenForm(true);
   };
 
-  const deleteEntry =
-async (id)=>{
-
-await deleteDoc(
-
-doc(
-db,
-
-"mv-entries",
-
-String(id)
-
-)
-
-);
-
+  const deleteEntry = async (id) => {
+  await deleteDoc(
+    doc(
+      db,
+      "mv-entries",
+      String(id)
+    )
+  );
 };
 
   const addTrackToAlbum = (ids, newTrack) => {
@@ -318,18 +310,51 @@ String(id)
     )
   );
 };
-  const deleteTrackFromAlbum = (ids, trackIndex) => {
-    setEntries(
-      entries.map((entry) =>
-        ids.includes(entry.id)
-          ? {
-              ...entry,
-              tracks: (entry.tracks || []).filter((_, index) => index !== trackIndex),
-            }
-          : entry
-      )
+  const deleteTrackFromAlbum = async (ids, trackIndex) => {
+  const updatedEntries = entries.map((entry) =>
+    ids.includes(entry.id)
+      ? {
+          ...entry,
+          tracks: (entry.tracks || []).filter(
+            (_, index) => index !== trackIndex
+          ),
+        }
+      : entry
+  );
+    const changedEntries =
+    updatedEntries.filter((entry) =>
+      ids.includes(entry.id)
     );
-  };
+
+  for (const entry of changedEntries) {
+
+    await setDoc(
+
+      doc(
+        db,
+        "mv-entries",
+        String(entry.id)
+      ),
+
+      entry
+
+    );
+
+  }
+
+};
+
+  const changedEntries = updatedEntries.filter((entry) =>
+    ids.includes(entry.id)
+  );
+
+  for (const entry of changedEntries) {
+    await setDoc(
+      doc(db, "mv-entries", String(entry.id)),
+      entry
+    );
+  }
+};
 
   const getAverageRating = (list) => {
     if (!list.length) return "0.0";
