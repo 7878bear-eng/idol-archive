@@ -12,12 +12,7 @@ from
 "firebase/firestore";
 import { db } from "./firebase";
 
-import {
-  collection,
-  doc,
-  setDoc,
-  onSnapshot,
-} from "firebase/firestore";
+
 import { useEffect, useMemo, useState } from "react";
 import { Search, Plus, Film } from "lucide-react";
 
@@ -321,28 +316,6 @@ useEffect(() => {
         }
       : entry
   );
-    const changedEntries =
-    updatedEntries.filter((entry) =>
-      ids.includes(entry.id)
-    );
-
-  for (const entry of changedEntries) {
-
-    await setDoc(
-
-      doc(
-        db,
-        "mv-entries",
-        String(entry.id)
-      ),
-
-      entry
-
-    );
-
-  }
-
-};
 
   const changedEntries = updatedEntries.filter((entry) =>
     ids.includes(entry.id)
@@ -356,6 +329,7 @@ useEffect(() => {
   }
 };
 
+  
   const getAverageRating = (list) => {
     if (!list.length) return "0.0";
     return (
@@ -373,32 +347,28 @@ useEffect(() => {
       />
     )}
 
-    <h3 className="
-text-3xl
-font-bold
-text-white
-leading-tight">
-      <div>
+    <div>
 
-<p className="
-text-zinc-400
-text-sm
-uppercase">
+  <p className="
+  text-zinc-400
+  text-sm
+  uppercase">
 
-{entry.idol}
+    {entry.idol}
 
-</p>
+  </p>
 
-<h3 className="
-text-3xl
-font-bold">
 
-{entry.mv}
+  <h3 className="
+  text-3xl
+  font-bold
+  text-white">
 
-</h3>
+    {entry.mv}
+
+  </h3>
 
 </div>
-    </h3>
 
     <p className="text-xs text-zinc-500 mb-3">
   {entry.date}
