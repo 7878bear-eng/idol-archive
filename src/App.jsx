@@ -212,7 +212,30 @@ useEffect(() => {
     newEntry
   );
 };
-  const addEntry = async () => {
+  const deleteTrackFromAlbum = async (ids, trackIndex) => {
+  const updatedEntries = entries.map((entry) =>
+    ids.includes(entry.id)
+      ? {
+          ...entry,
+          tracks: (entry.tracks || []).filter(
+            (_, index) => index !== trackIndex
+          ),
+        }
+      : entry
+  );
+
+  const changedEntries = updatedEntries.filter((entry) =>
+    ids.includes(entry.id)
+  );
+
+  for (const entry of changedEntries) {
+    await setDoc(
+      doc(db, "mv-entries", String(entry.id)),
+      entry
+    );
+  }
+};
+const addEntry = async () => {
 
   if (!idolName || !mvTitle)
     return;
