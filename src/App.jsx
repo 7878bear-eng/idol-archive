@@ -1,3 +1,15 @@
+import {
+
+doc,
+setDoc,
+deleteDoc,
+onSnapshot,
+collection
+
+}
+
+from
+"firebase/firestore";
 import { db } from "./firebase";
 
 import {
@@ -14,6 +26,19 @@ export default function App() {
 setOpenSettings] =
 useState(false);
   const [viewMode, setViewMode] = useState("year");
+  const [
+
+showFavorites,
+
+setShowFavorites
+
+]
+
+=
+
+useState(
+false
+);
   const [openForm, setOpenForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
@@ -32,6 +57,7 @@ useState(false);
   const [entries, setEntries] = useState([]);
   const [loaded, setLoaded] =
   useState(false);
+  
 
  useEffect(() => {
   const saved = localStorage.getItem("mv-entries");
@@ -108,8 +134,12 @@ useEffect(() => {
       ${entry.colorTag || ""}
       ${entry.conceptTag || ""}
       ${(entry.tracks || [])
-        .map((track) => (typeof track === "string" ? track : track.title || ""))
-        .join(" ")}
+  .map((track) =>
+    typeof track === "string"
+      ? track
+      : `${track.title || ""} ${track.link || ""} ${track.memo || ""}`
+  )
+  .join(" ")}
     `.toLowerCase();
 
     return searchableText.includes(keyword);
@@ -166,53 +196,72 @@ useEffect(() => {
   };
 
   const addEntry = async () => {
-    if (!idolName || !mvTitle) return;
 
-    const newEntry = {
-      id: editingId || Date.now(),
-      idol: idolName,
-      mv: mvTitle,
-      album: albumName,
-      date: mvDate,
-      youtube: youtubeLink.trim(),
-      note,
-      rating,
-      favorite,
-      colorTag,
-      conceptTag,
-      image,
-      tracks: editingId
-        ? entries.find((entry) => entry.id === editingId)?.tracks || []
-        : [],
-    };
+  if (!idolName || !mvTitle)
+    return;
 
-    if (editingId) {
-      setEntries(entries.map((entry) => (entry.id === editingId ? newEntry : entry)));
-    } else {
-      setEntries([newEntry, ...entries]);
-    }
-    console.log("Firebase 저장 시도", newEntry);
-    
-    await setDoc(
+  const newEntry = {
+    id:
+      editingId ||
+      Date.now(),
 
-doc(
-db,
+    idol:
+      idolName,
 
-"mv-entries",
+    mv:
+      mvTitle,
 
-String(
-newEntry.id
-)
-),
+    album:
+      albumName,
 
-newEntry
+    date:
+      mvDate,
 
-);
+    youtube:
+      youtubeLink.trim(),
 
-    resetForm();
-    setOpenForm(false);
+    note,
+
+    rating,
+
+    favorite,
+
+    colorTag,
+
+    conceptTag,
+
+    image,
+
+    tracks:
+      editingId
+      ? entries.find(
+          (entry)=>
+          entry.id===editingId
+        )?.tracks || []
+      : [],
   };
 
+
+  await setDoc(
+
+    doc(
+      db,
+      "mv-entries",
+      String(
+        newEntry.id
+      )
+    ),
+
+    newEntry
+
+  );
+
+
+  resetForm();
+
+  setOpenForm(false);
+
+};
   const startEdit = (entry) => {
     setEditingId(entry.id);
     setIdolName(entry.idol || "");
@@ -229,9 +278,23 @@ newEntry
     setOpenForm(true);
   };
 
-  const deleteEntry = (id) => {
-    setEntries(entries.filter((entry) => entry.id !== id));
-  };
+  const deleteEntry =
+async (id)=>{
+
+await deleteDoc(
+
+doc(
+db,
+
+"mv-entries",
+
+String(id)
+
+)
+
+);
+
+};
 
   const addTrackToAlbum = (ids, newTrack) => {
     setEntries(
@@ -781,6 +844,18 @@ rounded-xl"
           >
             아이돌별 보기
           </button>
+          <button
+  onClick={() =>
+    setShowFavorites(!showFavorites)
+  }
+  className={`px-4 py-2 rounded-xl ${
+    showFavorites
+      ? "bg-yellow-400 text-black"
+      : "bg-zinc-800 text-white"
+  }`}
+>
+  ⭐ 즐겨찾기
+</button>
           
           <button
 onClick={() => {
@@ -1009,9 +1084,33 @@ font-bold">
 />
 
                               <div className="flex flex-col gap-4 mt-5">
-                                {mvs.map((entry) => (
-                                  <EntryCard key={entry.id} entry={entry} />
-                                ))}
+                               {mvs
+
+.filter(
+
+(entry)=>
+
+showFavorites
+
+? entry.favorite
+
+: true
+
+)
+
+.map((entry)=>(
+
+<EntryCard
+
+key={entry.id}
+
+entry={entry}
+
+/>
+
+))
+
+}
                               </div>
                             </details>
                           );
