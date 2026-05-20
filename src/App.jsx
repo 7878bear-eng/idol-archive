@@ -390,17 +390,7 @@ updated
 
 };
 
-  const changedEntries = updatedEntries.filter((entry) =>
-    ids.includes(entry.id)
-  );
-
-  for (const entry of changedEntries) {
-    await setDoc(
-      doc(db, "mv-entries", String(entry.id)),
-      entry
-    );
-  }
-};
+  
 
   
   const getAverageRating = (list) => {
@@ -1198,34 +1188,79 @@ font-bold">
   placeholder="앨범 전체 메모 / 컨셉 / 색감 / 수록곡 흐름 기록"
   className="w-full bg-[#111111] rounded-xl p-3 min-h-[100px] mt-4 mb-4"
 />
-                              <AlbumTrackEditor
+                             <AlbumTrackEditor
   tracks={albumTracks}
-  
-  onAdd={(track) => addTrackToAlbum(albumIds, track)}
+  onAdd={(track) =>
+    addTrackToAlbum(albumIds, track)
+  }
+
   onDelete={(index) =>
-  deleteTrackFromAlbum(albumIds, index)
-}
-  onUpdate={(index, track) => updateTrackInAlbum(albumIds, index, track)}
-  onMove={(index, direction) => moveTrackInAlbum(albumIds, index, direction)}
-/>
-<AlbumMvAdder
-  albumInfo={{
-    idol: mvs[0]?.idol || "",
-    album,
-    date: mvs[0]?.date || "",
-    tracks: albumTracks,
-  }}
-  onAdd={(mvData) =>
-    addMvToAlbum(
-      {
-        idol: mvs[0]?.idol || "",
-        album,
-        date: mvs[0]?.date || "",
-        tracks: albumTracks,
-      },
-      mvData
+    deleteTrackFromAlbum(
+      albumIds,
+      index
     )
   }
+
+  onUpdate={(index, track) =>
+    updateTrackInAlbum(
+      albumIds,
+      index,
+      track
+    )
+  }
+
+  onMove={(index, direction) =>
+    moveTrackInAlbum(
+      albumIds,
+      index,
+      direction
+    )
+  }
+/>
+
+
+<AlbumMvAdder
+
+  albumInfo={{
+
+    idol:
+    mvs[0]?.idol || "",
+
+    album,
+
+    date:
+    mvs[0]?.date || "",
+
+    tracks:
+    albumTracks,
+
+  }}
+
+  onAdd={(mvData)=>
+
+    addMvToAlbum(
+
+      {
+
+      idol:
+      mvs[0]?.idol || "",
+
+      album,
+
+      date:
+      mvs[0]?.date || "",
+
+      tracks:
+      albumTracks,
+
+      },
+
+      mvData
+
+    )
+
+  }
+
 />
 
                               <div className="flex flex-col gap-4 mt-5">
@@ -1300,3 +1335,4 @@ entry={entry}
       </div>
     </main>
   );
+}
