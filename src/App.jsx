@@ -190,6 +190,28 @@ useEffect(() => {
     setImage("");
   };
 
+  const addMvToAlbum = async (albumInfo, mvData) => {
+  const newEntry = {
+    id: Date.now(),
+    idol: albumInfo.idol,
+    album: albumInfo.album,
+    date: albumInfo.date,
+    mv: mvData.mv,
+    youtube: mvData.youtube,
+    note: mvData.note,
+    rating: 5,
+    favorite: false,
+    colorTag: "",
+    conceptTag: "",
+    image: "",
+    tracks: albumInfo.tracks || [],
+  };
+
+  await setDoc(
+    doc(db, "mv-entries", String(newEntry.id)),
+    newEntry
+  );
+};
   const addEntry = async () => {
 
   if (!idolName || !mvTitle)
@@ -305,17 +327,68 @@ useEffect(() => {
     )
   );
 };
-  const deleteTrackFromAlbum = async (ids, trackIndex) => {
-  const updatedEntries = entries.map((entry) =>
-    ids.includes(entry.id)
-      ? {
-          ...entry,
-          tracks: (entry.tracks || []).filter(
-            (_, index) => index !== trackIndex
-          ),
-        }
-      : entry
-  );
+  const deleteTrack =
+async (
+
+entryId,
+
+trackIndex
+
+)=>{
+
+const target =
+entries.find(
+
+(entry)=>
+
+entry.id===entryId
+
+);
+
+if(!target)
+return;
+
+
+const updated = {
+
+...target,
+
+tracks:
+
+(target.tracks || [])
+
+.filter(
+
+(_,
+index)=>
+
+index !==
+trackIndex
+
+),
+
+};
+
+
+await setDoc(
+
+doc(
+
+db,
+
+"mv-entries",
+
+String(
+entryId
+)
+
+),
+
+updated
+
+);
+
+};
 
   const changedEntries = updatedEntries.filter((entry) =>
     ids.includes(entry.id)
@@ -500,7 +573,62 @@ const moveTrackInAlbum = (ids, trackIndex, direction) => {
   );
 };
   const AlbumTrackEditor = ({ tracks = [], onAdd, onDelete, onUpdate, onMove }) => {
-  const [newTrack, setNewTrack] = useState("");
+  const AlbumMvAdder = ({ albumInfo, onAdd }) => {
+  const [mv, setMv] = useState("");
+  const [youtube, setYoutube] = useState("");
+  const [note, setNote] = useState("");
+
+  return (
+    <div className="bg-black rounded-xl p-4 mb-5">
+      <p className="text-zinc-400 text-sm mb-3">
+        MV 추가
+      </p>
+
+      <div className="flex flex-col gap-3">
+        <input
+          value={mv}
+          onChange={(e) => setMv(e.target.value)}
+          placeholder="뮤직비디오 제목"
+          className="bg-zinc-900 p-3 rounded-xl"
+        />
+
+        <textarea
+          value={youtube}
+          onChange={(e) => setYoutube(e.target.value)}
+          placeholder="유튜브 링크"
+          className="bg-zinc-900 p-3 rounded-xl min-h-[70px]"
+        />
+
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="MV 메모"
+          className="bg-zinc-900 p-3 rounded-xl min-h-[100px]"
+        />
+
+        <button
+          onClick={() => {
+            if (!mv.trim()) return;
+
+            onAdd({
+              mv,
+              youtube,
+              note,
+            });
+
+            setMv("");
+            setYoutube("");
+            setNote("");
+          }}
+          className="bg-white text-black px-4 py-3 rounded-xl"
+        >
+          MV 추가
+        </button>
+      </div>
+    </div>
+  );
+};
+    const [newTrack, setNewTrack] = useState("");
   const [newTrackLink, setNewTrackLink] = useState("");
 
   return (
@@ -1072,10 +1200,32 @@ font-bold">
 />
                               <AlbumTrackEditor
   tracks={albumTracks}
+  
   onAdd={(track) => addTrackToAlbum(albumIds, track)}
-  onDelete={(index) => deleteTrackFromAlbum(albumIds, index)}
+  onDelete={(index) =>
+  deleteTrackFromAlbum(albumIds, index)
+}
   onUpdate={(index, track) => updateTrackInAlbum(albumIds, index, track)}
   onMove={(index, direction) => moveTrackInAlbum(albumIds, index, direction)}
+/>
+<AlbumMvAdder
+  albumInfo={{
+    idol: mvs[0]?.idol || "",
+    album,
+    date: mvs[0]?.date || "",
+    tracks: albumTracks,
+  }}
+  onAdd={(mvData) =>
+    addMvToAlbum(
+      {
+        idol: mvs[0]?.idol || "",
+        album,
+        date: mvs[0]?.date || "",
+        tracks: albumTracks,
+      },
+      mvData
+    )
+  }
 />
 
                               <div className="flex flex-col gap-4 mt-5">
@@ -1150,4 +1300,3 @@ entry={entry}
       </div>
     </main>
   );
-}
