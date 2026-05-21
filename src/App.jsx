@@ -190,28 +190,7 @@ useEffect(() => {
     setImage("");
   };
 
-  const addMvToAlbum = async (albumInfo, mvData) => {
-  const newEntry = {
-    id: Date.now(),
-    idol: albumInfo.idol,
-    album: albumInfo.album,
-    date: albumInfo.date,
-    mv: mvData.mv,
-    youtube: mvData.youtube,
-    note: mvData.note,
-    rating: 5,
-    favorite: false,
-    colorTag: "",
-    conceptTag: "",
-    image: "",
-    tracks: albumInfo.tracks || [],
-  };
-
-  await setDoc(
-    doc(db, "mv-entries", String(newEntry.id)),
-    newEntry
-  );
-};
+  
   const deleteTrackFromAlbum = async (ids, trackIndex) => {
   const updatedEntries = entries.map((entry) =>
     ids.includes(entry.id)
@@ -585,227 +564,80 @@ const moveTrackInAlbum = (ids, trackIndex, direction) => {
     })
   );
 };
-  const AlbumTrackEditor = ({ tracks = [], onAdd, onDelete, onUpdate, onMove }) => {
-  const AlbumMvAdder = ({ albumInfo, onAdd }) => {
-  const [mv, setMv] = useState("");
-  const [youtube, setYoutube] = useState("");
-  const [note, setNote] = useState("");
+  const AlbumTrackEditor = ({
+  tracks = [],
+  onAdd,
+  onDelete,
+  onUpdate,
+  onMove
+}) => {
 
-  return (
-    <div className="bg-black rounded-xl p-4 mb-5">
-      <p className="text-zinc-400 text-sm mb-3">
-        MV 추가
-      </p>
+const [newTrack,setNewTrack]=
+useState("");
 
-      <div className="flex flex-col gap-3">
-        <input
-          value={mv}
-          onChange={(e) => setMv(e.target.value)}
-          placeholder="뮤직비디오 제목"
-          className="bg-zinc-900 p-3 rounded-xl"
-        />
+const [newTrackLink,
+setNewTrackLink]=
+useState("");
 
-        <textarea
-          value={youtube}
-          onChange={(e) => setYoutube(e.target.value)}
-          placeholder="유튜브 링크"
-          className="bg-zinc-900 p-3 rounded-xl min-h-[70px]"
-        />
+return(
 
-        <textarea
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="MV 메모"
-          className="bg-zinc-900 p-3 rounded-xl min-h-[100px]"
-        />
+<div className="mt-4 mb-5 bg-[#111111] rounded-xl p-4">
 
-        <button
-          onClick={() => {
-            if (!mv.trim()) return;
+<p>
+TRACK LIST
+({tracks.length}/20)
+</p>
 
-            onAdd({
-              mv,
-              youtube,
-              note,
-            });
-
-            setMv("");
-            setYoutube("");
-            setNote("");
-          }}
-          className="bg-white text-black px-4 py-3 rounded-xl"
-        >
-          MV 추가
-        </button>
-      </div>
-    </div>
-  );
-};
-    const [newTrack, setNewTrack] = useState("");
-  const [newTrackLink, setNewTrackLink] = useState("");
-
-  return (
-    <div className="mt-4 mb-5 bg-[#111111] rounded-xl p-4">
-      <p className="text-zinc-400 text-sm mb-2">
-        TRACK LIST ({tracks.length}/20)
-      </p>
-
-      <div className="flex flex-col gap-2 mb-4">
-        <input
-          value={newTrack}
-          onChange={(e) => setNewTrack(e.target.value)}
-          placeholder="수록곡 제목"
-          className="bg-[#1a1a1a] p-3 rounded-xl"
-        />
-
-        <input
-          value={newTrackLink}
-          onChange={(e) => setNewTrackLink(e.target.value)}
-          placeholder="수록곡 링크"
-          className="bg-[#1a1a1a] p-3 rounded-xl"
-        />
-
-        <button
-          type="button"
-          onClick={() => {
-            if (!newTrack.trim()) return;
-
-            if (tracks.length >= 20) {
-              alert("수록곡은 최대 20개까지 가능합니다.");
-              return;
-            }
-
-            onAdd({
-  title: newTrack,
-  link: newTrackLink,
-  memo: "",
-});
-
-            setNewTrack("");
-            setNewTrackLink("");
-          }}
-          className="bg-white text-black px-4 py-3 rounded-xl"
-        >
-          수록곡 추가
-        </button>
-      </div>
-
-      <div className="space-y-2">
-        {tracks.map((track, i) => {
-          const title =
-            typeof track === "string"
-              ? track
-              : track?.title || "";
-
-          const link =
-            typeof track === "string"
-              ? ""
-              : track?.link || "";
-
-          return (
-            <div
-              key={i}
-              className="bg-[#1a1a1a] px-4 py-3 rounded-xl space-y-3"
-            >
-              <textarea
-value={
-typeof track === "string"
-? ""
-: track.memo || ""
-}
-
-onChange={(e)=>{
-
-const updatedTrack = {
-...track,
-memo:e.target.value
-};
-
-onUpdate(
-i,
-updatedTrack
-);
-
-}}
-
-placeholder="
-수록곡 메모
-(가사, 분위기,
-인트로, 연결성...)"
-
-className="
-w-full
-bg-[#111111]
-rounded-xl
-p-3
-mt-3
-min-h-[80px]"
+<input
+value={newTrack}
+onChange={(e)=>
+setNewTrack(
+e.target.value
+)}
+placeholder="수록곡"
 />
 
-              <div className="flex items-center gap-3">
-                <span className="text-zinc-300 w-8 text-right font-mono">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-
-                <input
-                  value={title}
-                  onChange={(e) =>
-                    onUpdate(
-i,
-{
-...track,
-title:
+<input
+value={newTrackLink}
+onChange={(e)=>
+setNewTrackLink(
 e.target.value
-}
-)
-                  }
-                  className="bg-[#111111] p-2 rounded-xl flex-1"
-                />
-              </div>
+)}
+placeholder="링크"
+/>
 
-              <div className="flex items-center gap-3 ml-11">
-                <input
-                  value={link}
-                  onChange={(e) =>
-                    onUpdate(i, {
-                      title,
-                      link: e.target.value,
-                    })
-                  }
-                  placeholder="링크"
-                  className="bg-[#111111] p-2 rounded-xl flex-1"
-                />
+<button
+onClick={()=>{
 
-                <button
-                  onClick={() => onMove(i, -1)}
-                  disabled={i === 0}
-                  className="bg-zinc-800 px-3 py-2 rounded-xl disabled:opacity-30"
-                >
-                  ↑
-                </button>
+onAdd({
 
-                <button
-                  onClick={() => onMove(i, 1)}
-                  disabled={i === tracks.length - 1}
-                  className="bg-zinc-800 px-3 py-2 rounded-xl disabled:opacity-30"
-                >
-                  ↓
-                </button>
+title:
+newTrack,
 
-                <button
-                  onClick={() => onDelete(i)}
-                  className="text-red-400 text-sm"
-                >
-                  삭제
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+link:
+newTrackLink,
+
+memo:""
+
+});
+
+setNewTrack("");
+setNewTrackLink("");
+
+}}
+>
+
+수록곡 추가
+
+</button>
+
+</div>
+
+);
+
 };
+  
+  
 
   return (
     <main className="min-h-screen bg-[#111111] text-white p-6">
@@ -1242,49 +1074,7 @@ font-bold">
 />
 
 
-<AlbumMvAdder
 
-  albumInfo={{
-
-    idol:
-    mvs[0]?.idol || "",
-
-    album,
-
-    date:
-    mvs[0]?.date || "",
-
-    tracks:
-    albumTracks,
-
-  }}
-
-  onAdd={(mvData)=>
-
-    addMvToAlbum(
-
-      {
-
-      idol:
-      mvs[0]?.idol || "",
-
-      album,
-
-      date:
-      mvs[0]?.date || "",
-
-      tracks:
-      albumTracks,
-
-      },
-
-      mvData
-
-    )
-
-  }
-
-/>
 
                               <div className="flex flex-col gap-4 mt-5">
                                {mvs
