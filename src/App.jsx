@@ -50,6 +50,7 @@ false
   const [conceptTag, setConceptTag] = useState("");
   const [image, setImage] = useState("");
   const [entries, setEntries] = useState([]);
+  const [editAlbum, setEditAlbum] = useState(null);
   const [loaded, setLoaded] =
   useState(false);
   
@@ -1022,56 +1023,80 @@ block"
 
                           return (
                             <details key={album} className="bg-zinc-900 rounded-2xl p-5">
+                          
                               <summary className="cursor-pointer text-xl font-semibold">
-                                <div className="
-text-2xl
-font-bold">
+  <div className="flex items-center justify-between">
+    
+    <div>
+      <div className="text-2xl font-bold">
+        💿 {album}
+      </div>
 
-💿 {album}
+      <span className="ml-3 text-sm text-zinc-400">
+        ⭐ {getAverageRating(mvs)}
+      </span>
+    </div>
 
-</div>
-                                <span className="ml-3 text-sm text-zinc-400">
-                                  ⭐ {getAverageRating(mvs)}
-                                </span>
-                              </summary>
+    <button
+      type="button"
+      onClick={(e) => {
+        e.preventDefault();
 
-                              <textarea
-  value={mvs[0]?.albumMemo || ""}
-  onChange={(e) =>
-    updateAlbumMemo(albumIds, e.target.value)
-  }
-  placeholder="앨범 전체 메모 / 컨셉 / 색감 / 수록곡 흐름 기록"
-  className="w-full bg-[#111111] rounded-xl p-3 min-h-[100px] mt-4 mb-4"
-/>
-                             <AlbumTrackEditor
-  tracks={albumTracks}
-  onAdd={(track) =>
-    addTrackToAlbum(albumIds, track)
-  }
+        setEditAlbum(
+          editAlbum === album ? null : album
+        );
+      }}
+      className="bg-white text-black px-4 py-2 rounded-xl text-sm"
+    >
+      {editAlbum === album ? "보기" : "편집"}
+    </button>
 
-  onDelete={(index) =>
-    deleteTrackFromAlbum(
-      albumIds,
-      index
-    )
-  }
+  </div>
+</summary>
 
-  onUpdate={(index, track) =>
-    updateTrackInAlbum(
-      albumIds,
-      index,
-      track
-    )
-  }
+                              
+                              {editAlbum === album && (
+  <textarea
+    value={mvs[0]?.albumMemo || ""}
+    onChange={(e) =>
+      updateAlbumMemo(albumIds, e.target.value)
+    }
+    placeholder="앨범 전체 메모 / 컨셉 / 색감 / 수록곡 흐름 기록"
+    className="w-full bg-[#111111] rounded-xl p-3 min-h-[100px] mt-4 mb-4"
+  />
+)}
+                             {editAlbum === album && (
+  <AlbumTrackEditor
+    tracks={albumTracks}
 
-  onMove={(index, direction) =>
-    moveTrackInAlbum(
-      albumIds,
-      index,
-      direction
-    )
-  }
-/>
+    onAdd={(track) =>
+      addTrackToAlbum(albumIds, track)
+    }
+
+    onDelete={(index) =>
+      deleteTrackFromAlbum(
+        albumIds,
+        index
+      )
+    }
+
+    onUpdate={(index, track) =>
+      updateTrackInAlbum(
+        albumIds,
+        index,
+        track
+      )
+    }
+
+    onMove={(index, direction) =>
+      moveTrackInAlbum(
+        albumIds,
+        index,
+        direction
+      )
+    }
+  />
+)}
 
 
 
