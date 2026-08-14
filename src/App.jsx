@@ -15,6 +15,8 @@ import { db } from "./firebase";
 
 import { useEffect, useMemo, useState } from "react";
 import { Search, Plus, Film } from "lucide-react";
+import JSZip from "jszip";
+
 
 export default function App() {
   const [openSettings,
@@ -176,6 +178,89 @@ useEffect(() => {
     return grouped;
   }, [filteredEntries]);
 
+ const downloadFullBackup = async () => {
+  const zip = new JSZip();
+
+  // 1. JSON 백업
+  zip.file(
+    "mv-archive.json",
+    JSON.stringify(entries, null, 2)
+  );
+
+  // 2. 이미지 폴더 생성
+  const imageFolder = zip.folder("images");
+
+  // 3. 각 MV의 이미지 꺼내기
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+
+    // 이미지가 없는 MV는 건너뜀
+    if (!entry.image) continue;
+
+    try {
+      // entry.image를 실제 이미지 데이터로 변환
+      const response = await fetch(entry.image);
+      const blob = await response.blob();
+
+      // 이미지 확장자 결정
+      let extension = "jpg";
+
+      if (blob.type === "image/png") {
+        extension = "png";
+      } else if (blob.type === "image/webp") {
+        extension = "webp";
+      } else if (blob.type === "image/gif") {
+        extension = "gif";
+      } else if (blob.type === "image/jpeg") {
+        extension = "jpg";
+      }
+
+      // 파일명에 못 쓰는 문자 제거
+      const idol = (entry.idol || "idol")
+        .replace(/[<>:"/\\|?*]/g, "_");
+
+      const mv = (entry.mv || `mv-${i + 1}`)
+        .replace(/[<>:"/\\|?*]/g, "_");
+
+      // ZIP 안 images 폴더에 이미지 추가
+      imageFolder.file(
+        `${idol}-${mv}.${extension}`,
+        blob
+      );
+
+    } catch (error) {
+      console.error(
+        "이미지 백업 실패:",
+        entry.mv,
+        error
+      );
+    }
+  }
+
+  // 4. ZIP 파일 만들기
+  const zipBlob = await zip.generateAsync({
+    type: "blob"
+  });
+
+  // 5. 다운로드 링크 생성
+  const url = URL.createObjectURL(zipBlob);
+
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download = "MV-Archive-Backup.zip";
+
+  document.body.appendChild(a);
+
+  a.click();
+
+  a.remove();
+
+  // 6. 임시 URL 정리
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 1000);
+};
   const resetForm = () => {
     setEditingId(null);
     setIdolName("");
@@ -874,6 +959,16 @@ rounded-xl"
 백업
 
 </button>
+
+<button
+  type="button"
+  onClick={downloadFullBackup}
+  className="bg-zinc-800 px-4 py-2 rounded-xl"
+>
+  📦 전체 백업
+</button>
+
+
         </div>
 
         {openSettings && (
