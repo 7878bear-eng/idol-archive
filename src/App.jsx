@@ -729,13 +729,29 @@ setNewTrackLink("");
     <main className="min-h-screen bg-[#111111] text-white p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <Film className="w-8 h-8" />
-            <div>
-              <h1 className="text-6xl font-extrabold tracking-tight">MV Archive</h1>
-              <p className="text-gray-400">아이돌 MV 연구 아카이브</p>
-            </div>
-          </div>
+          <button
+  type="button"
+  onClick={() => {
+    setViewMode("year");
+    setShowFavorites(false);
+    setSearch("");
+    setOpenSettings(false);
+    setOpenForm(false);
+  }}
+  className="flex items-center gap-3 text-left"
+>
+  <Film className="w-8 h-8" />
+
+  <div>
+    <h1 className="text-6xl font-extrabold tracking-tight">
+      MV Archive
+    </h1>
+
+    <p className="text-gray-400">
+      아이돌 MV 연구 아카이브
+    </p>
+  </div>
+</button>
 
           <button
             onClick={() => setOpenForm(!openForm)}
@@ -748,12 +764,25 @@ setNewTrackLink("");
         {openForm && (
           <section className="bg-[#1a1a1a] rounded-2xl p-5 mb-8">
             <div className="flex flex-col gap-4">
-              <input
-                placeholder="아이돌 이름"
-                value={idolName}
-                onChange={(e) => setIdolName(e.target.value)}
-                className="bg-zinc-800 p-3 rounded-xl"
-              />
+              <>
+  <input
+    list="idol-options"
+    placeholder="아이돌 이름"
+    value={idolName}
+    onChange={(e) => setIdolName(e.target.value)}
+    className="bg-zinc-800 p-3 rounded-xl"
+  />
+
+  <datalist id="idol-options">
+    {[...new Set(
+      entries
+        .map((entry) => entry.idol)
+        .filter(Boolean)
+    )].map((idol) => (
+      <option key={idol} value={idol} />
+    ))}
+  </datalist>
+</>
 
               <input
                 placeholder="뮤직비디오 제목"
@@ -762,12 +791,29 @@ setNewTrackLink("");
                 className="bg-zinc-800 p-3 rounded-xl"
               />
 
-              <input
-                placeholder="앨범 이름"
-                value={albumName}
-                onChange={(e) => setAlbumName(e.target.value)}
-                className="bg-zinc-800 p-3 rounded-xl"
-              />
+             <>
+  <input
+    list="album-options"
+    placeholder="앨범 이름"
+    value={albumName}
+    onChange={(e) => setAlbumName(e.target.value)}
+    className="bg-zinc-800 p-3 rounded-xl"
+  />
+
+  <datalist id="album-options">
+    {[...new Set(
+      entries
+        .filter((entry) =>
+          !idolName ||
+          entry.idol === idolName
+        )
+        .map((entry) => entry.album)
+        .filter(Boolean)
+    )].map((album) => (
+      <option key={album} value={album} />
+    ))}
+  </datalist>
+</>
 
               <input
                 type="date"
